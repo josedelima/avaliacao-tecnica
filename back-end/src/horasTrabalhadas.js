@@ -23,13 +23,11 @@ const buscarInicioHoraNoturnaDia = (dataHora) => {
 }
 
 const calcularHorasDiurnas = (dataHoraEntrada, dataHoraSaida) => {
-    let horaCalculada = moment.duration(dataHoraSaida.diff(dataHoraEntrada));//moment.duration(0, 'seconds');
-
-    
+    let horaCalculada = moment.duration(dataHoraSaida.diff(dataHoraEntrada));
 
     const inicioHoraDiurnaEntrada = buscarInicioHoraDiurnaDia(dataHoraEntrada);
     const inicioHoraNoturnaEntrada = buscarInicioHoraNoturnaDia(dataHoraEntrada);
-    const inicioHoraDiurnaSaida = buscarInicioHoraNoturnaDia(dataHoraSaida);
+    const inicioHoraDiurnaSaida = buscarInicioHoraDiurnaDia(dataHoraSaida);
     const inicioHoraNoturnaSaida = buscarInicioHoraNoturnaDia(dataHoraSaida);
 
     if (dataHoraEntrada.isBefore(inicioHoraDiurnaEntrada)) {
@@ -40,46 +38,49 @@ const calcularHorasDiurnas = (dataHoraEntrada, dataHoraSaida) => {
         horaCalculada.subtract(moment.duration(inicioHoraDiurnaSaida.diff(dataHoraEntrada)));
     }
 
+    if (dataHoraSaida.isBetween(inicioHoraNoturnaEntrada, inicioHoraDiurnaSaida)) {
+        horaCalculada.subtract(moment.duration(dataHoraSaida.diff(inicioHoraNoturnaEntrada)));
+    }
+
     if (inicioHoraNoturnaEntrada.isBetween(dataHoraEntrada, dataHoraSaida) && inicioHoraDiurnaSaida.isBetween(dataHoraEntrada, dataHoraSaida)) {
         horaCalculada.subtract(moment.duration(inicioHoraDiurnaSaida.diff(inicioHoraNoturnaEntrada)));
     }
 
-
-
-
-    /*if (dataHoraEntrada.format(FORMATO_DATA) == dataHoraSaida.format(FORMATO_DATA)) {
-        const inicioHoraDiurna = buscarInicioHoraDiurnaDia(dataHoraEntrada);
-        const inicioHoraNoturna = buscarInicioHoraNoturnaDia(dataHoraSaida);
-
-
-        if (dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(dataHoraSaida.diff(dataHoraEntrada)));
-        } else if (dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && !dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(inicioHoraNoturna.diff(dataHoraEntrada)));
-        } else if (!dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(dataHoraSaida.diff(inicioHoraDiurna)));
-        } else {
-            horaCalculada.add(moment.duration(inicioHoraNoturna.diff(inicioHoraDiurna)));
-        }
-    } else {
-        const inicioHoraDiurnaEntrada = buscarInicioHoraDiurnaDia(dataHoraEntrada);
-        const inicioHoraNoturnaEntrada = buscarInicioHoraNoturnaDia(dataHoraEntrada);
-        const inicioHoraNoturnaSaida = buscarInicioHoraNoturnaDia(dataHoraSaida);
-        const inicioHoraNoturnaSaida = buscarInicioHoraNoturnaDia(dataHoraSaida);
-
-
-        if (dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(dataHoraSaida.diff(dataHoraEntrada)));
-        } else if (dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && !dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(inicioHoraNoturna.diff(dataHoraEntrada)));
-        } else if (!dataHoraEntrada.isBetween(inicioHoraDiurna, inicioHoraNoturna) && dataHoraSaida.isBetween(inicioHoraDiurna, inicioHoraNoturna)) {
-            horaCalculada.add(moment.duration(dataHoraSaida.diff(inicioHoraDiurna)));
-        } else {
-            horaCalculada.add(moment.duration(inicioHoraNoturna.diff(inicioHoraDiurna)));
-        }
-    }*/
-
+    if (dataHoraSaida.isAfter(inicioHoraNoturnaSaida)) {
+        horaCalculada.subtract(moment.duration(dataHoraSaida.diff(inicioHoraNoturnaSaida)));
+    }
     
+    return moment.utc(horaCalculada.as('milliseconds')).format("HH:mm");
+};
+
+const calcularHorasNoturnas = (dataHoraEntrada, dataHoraSaida) => {
+    let horaCalculada = moment.duration(0, 'seconds');
+
+    const inicioHoraDiurnaEntrada = buscarInicioHoraDiurnaDia(dataHoraEntrada);
+    const inicioHoraNoturnaEntrada = buscarInicioHoraNoturnaDia(dataHoraEntrada);
+    const inicioHoraDiurnaSaida = buscarInicioHoraDiurnaDia(dataHoraSaida);
+    const inicioHoraNoturnaSaida = buscarInicioHoraNoturnaDia(dataHoraSaida);
+
+    if (dataHoraEntrada.isBefore(inicioHoraDiurnaEntrada)) {
+        horaCalculada.add(moment.duration(inicioHoraDiurnaEntrada.diff(dataHoraEntrada)));
+    }
+
+    if (dataHoraEntrada.isBetween(inicioHoraNoturnaEntrada, inicioHoraDiurnaSaida)) {
+        horaCalculada.add(moment.duration(inicioHoraDiurnaSaida.diff(dataHoraEntrada)));
+    }
+
+    if (dataHoraSaida.isBetween(inicioHoraNoturnaEntrada, inicioHoraDiurnaSaida)) {
+        horaCalculada.add(moment.duration(dataHoraSaida.diff(inicioHoraNoturnaEntrada)));
+    }
+
+    if (inicioHoraNoturnaEntrada.isBetween(dataHoraEntrada, dataHoraSaida) && inicioHoraDiurnaSaida.isBetween(dataHoraEntrada, dataHoraSaida)) {
+        horaCalculada.add(moment.duration(inicioHoraDiurnaSaida.diff(inicioHoraNoturnaEntrada)));
+    }
+
+    if (dataHoraSaida.isAfter(inicioHoraNoturnaSaida)) {
+        horaCalculada.add(moment.duration(dataHoraSaida.diff(inicioHoraNoturnaSaida)));
+    }
+
     return moment.utc(horaCalculada.as('milliseconds')).format("HH:mm");
 };
 
@@ -95,6 +96,7 @@ const validaDiferencaEntreHoras = (dataHoraInicial, dataHoraFinal) => {
 
 module.exports = {
     calcularHorasDiurnas,
+    calcularHorasNoturnas,
     validaDiferencaEntreHoras,
     buscarInicioHoraDiurnaDia,
     buscarInicioHoraNoturnaDia
