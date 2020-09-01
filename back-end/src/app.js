@@ -1,5 +1,6 @@
 const express = require("express");
 const moment = require("moment");
+var cors = require('cors');
 const {
   calcularHorasDiurnas,
   calcularHorasNoturnas,
@@ -10,9 +11,11 @@ const {
 
 const app = express();
 
-const port = 3000;
+const port = 3030;
 
 app.use(express.json());
+
+app.use(cors());
 
 app.post("/calculo-horas", (req, res) => {
 
